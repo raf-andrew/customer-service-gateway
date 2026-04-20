@@ -25,7 +25,7 @@ jobs:
           )
 
           for file in "${required_files[@]}"; do
-            if [ ! -f "/f/www/customer-service-gateway/$file" ]; then
+            if [ ! -f "${{ github.workspace }}/$file" ]; then
               echo "⚠ Missing: $file"
             else
               echo "✓ Found: $file"
@@ -36,10 +36,10 @@ jobs:
         run: |
           echo "Checking infrastructure files..."
           files=(
-            "/f/www/customer-service-gateway/docker-compose.local.yml"
-            "/f/www/customer-service-gateway/scripts/health-check.sh"
-            "/f/www/customer-service-gateway/scripts/backup.sh"
-            "/f/www/customer-service-gateway/scripts/restore.sh"
+            "${{ github.workspace }}/docker-compose.local.yml"
+            "${{ github.workspace }}/scripts/health-check.sh"
+            "${{ github.workspace }}/scripts/backup.sh"
+            "${{ github.workspace }}/scripts/restore.sh"
           )
 
           for file in "${files[@]}"; do
@@ -53,7 +53,7 @@ jobs:
       - name: Verify health check readiness
         run: |
           echo "Verifying health check script..."
-          if [ -x "/f/www/customer-service-gateway/scripts/health-check.sh" ]; then
+          if [ -x "${{ github.workspace }}/scripts/health-check.sh" ]; then
             echo "✓ Health check script is executable"
           else
             echo "⚠ Health check script permissions may need adjustment"
@@ -62,10 +62,10 @@ jobs:
       - name: Check database scripts
         run: |
           echo "Checking database backup/restore scripts..."
-          if [ -x "/f/www/customer-service-gateway/scripts/backup.sh" ]; then
+          if [ -x "${{ github.workspace }}/scripts/backup.sh" ]; then
             echo "✓ Backup script is executable"
           fi
-          if [ -x "/f/www/customer-service-gateway/scripts/restore.sh" ]; then
+          if [ -x "${{ github.workspace }}/scripts/restore.sh" ]; then
             echo "✓ Restore script is executable"
           fi
 
@@ -73,9 +73,9 @@ jobs:
         run: |
           echo "Checking completion reports..."
           reports=(
-            "/f/www/customer-service-gateway/BATCH_5_STATUS_REPORT.md"
-            "/f/www/customer-service-gateway/BATCH_6_STATUS_REPORT.md"
-            "/f/www/customer-service-gateway/BATCH_7_STATUS_REPORT.md"
+            "${{ github.workspace }}/BATCH_5_STATUS_REPORT.md"
+            "${{ github.workspace }}/BATCH_6_STATUS_REPORT.md"
+            "${{ github.workspace }}/BATCH_7_STATUS_REPORT.md"
           )
 
           for report in "${reports[@]}"; do

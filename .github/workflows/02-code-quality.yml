@@ -26,28 +26,28 @@ jobs:
       - name: Validate Docker Compose files
         run: |
           echo "Validating docker-compose files..."
-          cd /f/www/webapp_core
+          cd ../webapp_core
           docker-compose -f docker-compose.local.yml config > /dev/null
           echo "✓ docker-compose.local.yml is valid"
 
       - name: Lint shell scripts
         run: |
           echo "Linting shell scripts..."
-          shellcheck /f/www/customer-service-gateway/scripts/*.sh || true
+          shellcheck ${{ github.workspace }}/scripts/*.sh || true
           echo "✓ Shell scripts checked (warnings may be informational)"
 
       - name: Lint YAML files
         run: |
           echo "Linting YAML files..."
-          yamllint -d relaxed /f/www/customer-service-gateway/.github/workflows/ || true
+          yamllint -d relaxed ${{ github.workspace }}/.github/workflows/ || true
           echo "✓ YAML files checked"
 
       - name: Validate nginx configuration
         run: |
           echo "Validating nginx configuration..."
           docker run --rm \
-            -v /f/www/webapp_core/docker/nginx.conf:/etc/nginx/nginx.conf:ro \
-            -v /f/www/webapp_core/docker/conf.d:/etc/nginx/conf.d:ro \
+            -v ../webapp_core/docker/nginx.conf:/etc/nginx/nginx.conf:ro \
+            -v ../webapp_core/docker/conf.d:/etc/nginx/conf.d:ro \
             nginx:1.25-alpine \
             nginx -t
           echo "✓ nginx configuration is valid"
@@ -57,7 +57,7 @@ jobs:
           echo "Checking for common issues..."
 
           # Check for exposed secrets patterns
-          ! grep -r "password.*=.*['\"]" /f/www/customer-service-gateway/scripts/ --include="*.sh" || echo "⚠ Found potential hardcoded passwords"
+          ! grep -r "password.*=.*['\"]" ${{ github.workspace }}/scripts/ --include="*.sh" || echo "⚠ Found potential hardcoded passwords"
 
           # Check Docker files for best practices
           echo "✓ Basic security checks passed"

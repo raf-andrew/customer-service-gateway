@@ -27,30 +27,30 @@ jobs:
 
       - name: Build Docker images
         run: |
-          cd /f/www/webapp_core
+          cd ../webapp_core
           docker-compose -f docker-compose.local.yml build
 
       - name: Start containers
         run: |
-          cd /f/www/webapp_core
+          cd ../webapp_core
           docker-compose -f docker-compose.local.yml up -d
           sleep 15
 
       - name: Run health check
         run: |
-          cd /f/www/customer-service-gateway
+          cd ${{ github.workspace }}
           bash scripts/health-check.sh
 
       - name: Collect logs on failure
         if: failure()
         run: |
-          cd /f/www/webapp_core
+          cd ../webapp_core
           docker-compose -f docker-compose.local.yml logs
 
       - name: Stop containers
         if: always()
         run: |
-          cd /f/www/webapp_core
+          cd ../webapp_core
           docker-compose -f docker-compose.local.yml down
 
   report:
