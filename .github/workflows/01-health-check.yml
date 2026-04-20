@@ -1,0 +1,70 @@
+name: Health Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Docker daemon
+        run: |
+          sudo systemctl start docker
+          sudo usermod -aG docker $USER
+          sleep 5
+
+      - name: Build Docker images
+        run: |
+          cd /f/www/webapp_core
+          docker-compose -f docker-compose.local.yml build
+
+      - name: Start containers
+        run: |
+          cd /f/www/webapp_core
+          docker-compose -f docker-compose.local.yml up -d
+          sleep 15
+
+      - name: Run health check
+        run: |
+          cd /f/www/customer-service-gateway
+          bash scripts/health-check.sh
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          cd /f/www/webapp_core
+          docker-compose -f docker-compose.local.yml logs
+
+      - name: Stop containers
+        if: always()
+        run: |
+          cd /f/www/webapp_core
+          docker-compose -f docker-compose.local.yml down
+
+  report:
+    needs: health-check
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Determine status
+        run: |
+          if [ "${{ needs.health-check.result }}" == "success" ]; then
+            echo "✅ Health check passed"
+            exit 0
+          else
+            echo "❌ Health check failed"
+            exit 1
+          fi

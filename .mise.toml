@@ -1,0 +1,19 @@
+[tasks.test]
+description = "Run tests"
+run = "npm test || pytest . || phpunit"
+
+[tasks.lint]
+description = "Lint code"
+run = "npm run lint || python -m pylint . || phpcs ."
+
+[tasks.build]
+description = "Build project"
+run = "npm run build || python setup.py build || composer install"
+
+[tasks.dev]
+description = "Start dev server"
+run = "npm run dev || python manage.py runserver || php artisan serve"
+
+[tasks.deploy]
+description = "Deploy to production"
+run = "npm run deploy || python deploy.py || composer deploy"
